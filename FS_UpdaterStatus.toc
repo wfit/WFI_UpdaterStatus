@@ -1,0 +1,5 @@
+## Interface: 70000
+## Title: |cff64b4ffFrom Scratch|r Updater Status
+
+data.lua
+FS_UpdaterStatus.lua
