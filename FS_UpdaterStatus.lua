@@ -36,10 +36,10 @@ function FS_UpdaterStatus:OnCommReceived(prefix, text, _, sender)
         if text == "$REQ" then
             self:BroadcastRevisions()
         else
-            local res, label = self:Deserialize(text)
+            local res, addons = self:Deserialize(text)
             if not res then return end
 
-            for addon, rev in pairs(res) do
+            for addon, rev in pairs(addons) do
                 local list = FS_UP[addon]
                 if not list then
                     list = {}
