@@ -15,19 +15,6 @@ local GUI = Outer.args
 
 function FS_UpdaterStatus:RebuildGUI()
     wipe(GUI)
-    
-    GUI.RequestVersionBtn = {
-        type = "execute",
-        func = function()
-            if IsInRaid() then
-                FS_UpdaterStatus:SendCommMessage("FSUPS", "$REQ", "RAID")
-            end
-            if IsInGuild() then
-                FS_UpdaterStatus:SendCommMessage("FSUPS", "$REQ", "GUILD")
-            end
-        end,
-        order = 0
-    }
 
     for name in pairs(DIRECTORY) do
         local addon = {
@@ -48,6 +35,15 @@ function FS_UpdaterStatus:RebuildGUI()
     end
 
     AceConfigRegistry:NotifyChange("FS_UpdaterStatus")
+end
+
+function FS_UpdaterStatus:Request()
+    if IsInRaid() then
+        FS_UpdaterStatus:SendCommMessage("FSUPS", "$REQ", "RAID")
+    end
+    if IsInGuild() then
+        FS_UpdaterStatus:SendCommMessage("FSUPS", "$REQ", "GUILD")
+    end
 end
 
 function FS_UpdaterStatus:OnInitialize()
