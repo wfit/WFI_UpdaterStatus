@@ -26,13 +26,8 @@ function FS_UpdaterStatus:RebuildGUI()
         for user, rev in pairs(DIRECTORY[name]) do
             addon.args[user] = {
                 type = "description",
-                name = user,
-                width = "normal"
-            }
-            addon.args[user.."_rev"] = {
-                type = "description",
-                name = rev,
-                width = "normal"
+                name = user .. "  -  |cff" .. (rev:sub(1, 6)) .. rev,
+                width = "full"
             }
         end
 
