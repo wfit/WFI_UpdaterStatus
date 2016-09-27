@@ -19,7 +19,7 @@ function FS_UpdaterStatus:RebuildGUI()
     for name in pairs(DIRECTORY) do
         local addon = {
             type = "group",
-            name = "FS Updater Status",
+            name = name,
             args = {}
         }
 
@@ -27,12 +27,12 @@ function FS_UpdaterStatus:RebuildGUI()
             addon.args[user] = {
                 type = "description",
                 name = user,
-                width = "double"
+                width = "normal"
             }
             addon.args[user.."_rev"] = {
                 type = "description",
                 name = rev,
-                width = "double"
+                width = "normal"
             }
         end
 
