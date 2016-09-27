@@ -1,13 +1,17 @@
 ## Interface: 70000
 ## Title: |cff64b4ffFrom Scratch|r Updater Status
 ## Notes: In-game Addons status data
-## OptionalDeps: LibStub, CallbackHandler-1.0, Ace3, FS_Core
+## OptionalDeps: LibStub, Ace3, FS_Core
 
-LibStub\LibStub.lua
-CallbackHandler-1.0\CallbackHandler-1.0.xml
-AceAddon-3.0\AceAddon-3.0.xml
-AceComm-3.0\AceComm-3.0.xml
-AceSerializer-3.0\AceSerializer-3.0.xml
+#@no-lib-strip@
+libs\Ace3\LibStub\LibStub.lua
+libs\Ace3\CallbackHandler-1.0\CallbackHandler-1.0.xml
+libs\Ace3\AceAddon-3.0\AceAddon-3.0.xml
+libs\Ace3\AceConsole-3.0\AceConsole-3.0.xml
+libs\Ace3\AceConfig-3.0\AceConfig-3.0.xml
+libs\Ace3\AceComm-3.0\AceComm-3.0.xml
+libs\Ace3\AceSerializer-3.0\AceSerializer-3.0.xml
+#@end-no-lib-strip@
 
 AddonsList.lua
 FS_UpdaterStatus.lua

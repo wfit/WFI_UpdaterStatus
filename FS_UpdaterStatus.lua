@@ -1,14 +1,19 @@
 -- Abort if addons list is not available
-if not FS_UPDATER_ADDONS then
-    return
-end
+local FS_UPDATER_ADDONS = FS_UPDATER_ADDONS
+if not FS_UPDATER_ADDONS then return end
 
-FS_UP = {}
+local DIRECTORY = {}
 
 local FS_UpdaterStatus = LibStub("AceAddon-3.0"):NewAddon("FS_UpdaterStatus", "AceComm-3.0", "AceSerializer-3.0")
+local AceConfig = LibStub("AceConfig-3.0")
+
+local GUI = {
+
+}
 
 function FS_UpdaterStatus:OnInitialize()
     self:RegisterComm("FSUPS")
+    AceConfig:RegisterOptionsTable("FS_UpdaterStatus", GUI, "/fsu")
 end
 
 function FS_UpdaterStatus:OnEnable()
@@ -40,10 +45,10 @@ function FS_UpdaterStatus:OnCommReceived(prefix, text, _, sender)
             if not res then return end
 
             for addon, rev in pairs(addons) do
-                local list = FS_UP[addon]
+                local list = DIRECTORY[addon]
                 if not list then
                     list = {}
-                    FS_UP[addon] = list
+                    DIRECTORY[addon] = list
                 end
                 list[sender] = rev
             end

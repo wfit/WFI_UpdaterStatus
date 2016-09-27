@@ -1,4 +1,2 @@
-package-as: FS_UpdaterStatus
-
-ignore:
-  - README.md
+externals:
+	libs/Ace3: svn://svn.wowace.com/wow/ace3/mainline/trunk
