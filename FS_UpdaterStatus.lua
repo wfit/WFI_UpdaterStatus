@@ -5,15 +5,34 @@ if not FS_UPDATER_ADDONS then return end
 local DIRECTORY = {}
 
 local FS_UpdaterStatus = LibStub("AceAddon-3.0"):NewAddon("FS_UpdaterStatus", "AceComm-3.0", "AceSerializer-3.0")
+
 local AceConfig = LibStub("AceConfig-3.0")
+local AceConfigRegistry = LibStub("AceConfigRegistry-3.0")
 
-local GUI = {
+local Outer = { type = "group", args = {} }
+local GUI = Outer.args
 
-}
+function FS_UpdaterStatus:RebuildGUI()
+    wipe(GUI)
+
+    GUI.addon_selector = {
+        order = 1,
+        type = "select",
+        style = "dropdown",
+        values = {}
+    }
+
+    for name in pairs(DIRECTORY) do
+        GUI.addon_selector.values[name] = name
+    end
+
+    AceConfigRegistry:NotifyChange("FS_UpdaterStatus")
+end
 
 function FS_UpdaterStatus:OnInitialize()
     self:RegisterComm("FSUPS")
-    AceConfig:RegisterOptionsTable("FS_UpdaterStatus", GUI, "/fsu")
+    self:RebuildGUI()
+    AceConfig:RegisterOptionsTable("FS_UpdaterStatus", Outer, "/fsu")
 end
 
 function FS_UpdaterStatus:OnEnable()
@@ -52,6 +71,8 @@ function FS_UpdaterStatus:OnCommReceived(prefix, text, _, sender)
                 end
                 list[sender] = rev
             end
+
+            self:RebuildGUI()
         end
     end
 end
