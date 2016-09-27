@@ -10,22 +10,26 @@ local AceConfig = LibStub("AceConfig-3.0")
 local AceConfigDialog = LibStub("AceConfigDialog-3.0")
 local AceConfigRegistry = LibStub("AceConfigRegistry-3.0")
 
-local Outer = { type = "group", args = {} }
+local Outer = { type = "group", childGroups = "select", args = {} }
 local GUI = Outer.args
 
 function FS_UpdaterStatus:RebuildGUI()
     wipe(GUI)
 
-    GUI.addon_selector = {
-        order = 1,
-        name = "Addon",
-        type = "select",
-        style = "dropdown",
-        values = {}
-    }
-
     for name in pairs(DIRECTORY) do
-        GUI.addon_selector.values[name] = name
+        local addon = {
+            type = "group",
+            args = {}
+        }
+
+        for user, rev in pairs(DIRECTORY[name]) do
+           addon.args[user] = {
+               type = "description",
+               name = user .. "  -  " .. rev
+           }
+        end
+
+        GUI[name] = addon
     end
 
     AceConfigRegistry:NotifyChange("FS_UpdaterStatus")
