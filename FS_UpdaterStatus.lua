@@ -7,6 +7,7 @@ local DIRECTORY = {}
 local FS_UpdaterStatus = LibStub("AceAddon-3.0"):NewAddon("FS_UpdaterStatus", "AceComm-3.0", "AceSerializer-3.0")
 
 local AceConfig = LibStub("AceConfig-3.0")
+local AceConfigDialog = LibStub("AceConfigDialog-3.0")
 local AceConfigRegistry = LibStub("AceConfigRegistry-3.0")
 
 local Outer = { type = "group", args = {} }
@@ -17,6 +18,7 @@ function FS_UpdaterStatus:RebuildGUI()
 
     GUI.addon_selector = {
         order = 1,
+        name = "Addon",
         type = "select",
         style = "dropdown",
         values = {}
@@ -31,12 +33,17 @@ end
 
 function FS_UpdaterStatus:OnInitialize()
     self:RegisterComm("FSUPS")
+    self:RegisterChatCommand("fsu", "OnSlash")
     self:RebuildGUI()
-    AceConfig:RegisterOptionsTable("FS_UpdaterStatus", Outer, "/fsu")
+    AceConfig:RegisterOptionsTable("FS_UpdaterStatus", Outer)
 end
 
 function FS_UpdaterStatus:OnEnable()
     self:BroadcastRevisions()
+end
+
+function FS_UpdaterStatus:OnSlash()
+    AceConfigDialog:Open("FS_UpdaterStatus")
 end
 
 do
