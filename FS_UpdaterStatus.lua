@@ -19,6 +19,7 @@ function FS_UpdaterStatus:RebuildGUI()
     for name in pairs(DIRECTORY) do
         local addon = {
             type = "group",
+            name = name,
             args = {}
         }
 
