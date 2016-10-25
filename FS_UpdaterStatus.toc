@@ -1,4 +1,4 @@
-## Interface: 70000
+## Interface: 70100
 ## Title: |cff64b4ffFrom Scratch|r Updater Status
 ## Notes: In-game Addons status data
 ## OptionalDeps: LibStub, Ace3, FS_Core
