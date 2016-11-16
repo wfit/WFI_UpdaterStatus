@@ -41,8 +41,7 @@ end
 function FS_UpdaterStatus:Request()
     if IsInRaid() then
         FS_UpdaterStatus:SendCommMessage("FSUPS", "$REQ", "RAID")
-    end
-    if IsInGuild() then
+    elseif IsInGuild() then
         FS_UpdaterStatus:SendCommMessage("FSUPS", "$REQ", "GUILD")
     end
 end
@@ -55,7 +54,7 @@ function FS_UpdaterStatus:OnInitialize()
 end
 
 function FS_UpdaterStatus:OnEnable()
-    self:BroadcastRevisions()
+    --self:BroadcastRevisions()
 end
 
 function FS_UpdaterStatus:OnSlash()
@@ -70,8 +69,7 @@ do
             local serialized = self:Serialize(FS_UPDATER_ADDONS)
             if IsInRaid() then
                 self:SendCommMessage("FSUPS", serialized, "RAID")
-            end
-            if IsInGuild() then
+            elseif IsInGuild() then
                 self:SendCommMessage("FSUPS", serialized, "GUILD")
             end
         end)
