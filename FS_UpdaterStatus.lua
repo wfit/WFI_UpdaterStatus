@@ -39,7 +39,7 @@ function FS_UpdaterStatus:RebuildGUI()
 end
 
 function FS_UpdaterStatus:Request()
-	wipe(DIRECTORY)
+    wipe(DIRECTORY)
     if IsInRaid() then
         FS_UpdaterStatus:SendCommMessage("FSUPS", "$REQ", "RAID")
     elseif IsInGuild() then
@@ -59,6 +59,7 @@ function FS_UpdaterStatus:OnEnable()
 end
 
 function FS_UpdaterStatus:OnSlash()
+    self:Request()
     AceConfigDialog:Open("FS_UpdaterStatus")
 end
 
