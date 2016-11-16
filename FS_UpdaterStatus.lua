@@ -39,6 +39,7 @@ function FS_UpdaterStatus:RebuildGUI()
 end
 
 function FS_UpdaterStatus:Request()
+	wipe(DIRECTORY)
     if IsInRaid() then
         FS_UpdaterStatus:SendCommMessage("FSUPS", "$REQ", "RAID")
     elseif IsInGuild() then
