@@ -55,7 +55,7 @@ function FS_UpdaterStatus:OnInitialize()
 end
 
 function FS_UpdaterStatus:OnEnable()
-    --self:BroadcastRevisions()
+    self:BroadcastRevisions()
 end
 
 function FS_UpdaterStatus:OnSlash()
