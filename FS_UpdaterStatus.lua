@@ -14,6 +14,14 @@ local AceConfigRegistry = LibStub("AceConfigRegistry-3.0")
 local Outer = { type = "group", childGroups = "tree", args = {} }
 local GUI = Outer.args
 
+local function colorize(rev)
+	a, b, c = rev:sub(1, 2), rev:sub(3, 4), rev:sub(5, 6)
+	a, b, c = tonumber(a, 16), tonumber(b, 16), tonumber(c, 16)
+	local offset = math.max(0, 128 - (a + b + c) / 3)
+	a, b, c = math.min(a + offset, 255), math.min(b + offset, 255), math.min(c + offset, 255)
+	return ("%02x%02x%02x"):format(a, b, c)
+end
+
 function FS_UpdaterStatus:RebuildGUI()
     wipe(GUI)
 
@@ -27,7 +35,7 @@ function FS_UpdaterStatus:RebuildGUI()
         for user, rev in pairs(DIRECTORY[name]) do
             addon.args[user] = {
                 type = "description",
-                name = user .. "  -  |cff" .. (rev:sub(1, 6)) .. rev,
+                name = user .. "  -  |cff" .. colorize(rev) .. rev,
                 width = "full"
             }
         end
