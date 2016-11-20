@@ -39,8 +39,8 @@ function FS_UpdaterStatus:RebuildGUI()
         for user, rev in pairs(DIRECTORY[name]) do
             addon.args[user] = {
                 type = "description",
-                name = user .. "  -  |cff" .. colorize(rev) .. rev,
-                width = "full"
+                name = Ambiguate(user, "short") .. "  -  |cff" .. colorize(rev) .. rev:sub(1, 10),
+                width = "normal"
             }
         end
 
