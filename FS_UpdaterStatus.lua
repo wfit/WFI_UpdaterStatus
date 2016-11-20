@@ -2,6 +2,10 @@
 local FS_UPDATER_ADDONS = FS_UPDATER_ADDONS
 if not FS_UPDATER_ADDONS then return end
 
+for addon, rev in pairs(FS_UPDATER_ADDONS) do
+	FS_UPDATER_ADDONS[addon] = rev:sub(1, 10)
+end
+
 local DIRECTORY = {}
 
 local FS_UpdaterStatus = LibStub("AceAddon-3.0"):NewAddon("FS_UpdaterStatus", "AceComm-3.0", "AceSerializer-3.0", "AceConsole-3.0")
