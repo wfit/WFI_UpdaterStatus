@@ -54,8 +54,6 @@ function FS_UpdaterStatus:Request()
     wipe(DIRECTORY)
     if IsInRaid() then
         FS_UpdaterStatus:SendCommMessage("FSUPS", "$REQ", "RAID")
-    elseif IsInGuild() then
-        FS_UpdaterStatus:SendCommMessage("FSUPS", "$REQ", "GUILD")
     end
 end
 
@@ -80,11 +78,9 @@ do
     function FS_UpdaterStatus:BroadcastRevisions()
         if delay then delay:Cancel() end
         delay = C_Timer.NewTimer(5, function()
-            local serialized = self:Serialize(FS_UPDATER_ADDONS)
             if IsInRaid() then
+                local serialized = self:Serialize(FS_UPDATER_ADDONS)
                 self:SendCommMessage("FSUPS", serialized, "RAID")
-            elseif IsInGuild() then
-                self:SendCommMessage("FSUPS", serialized, "GUILD")
             end
         end)
     end
