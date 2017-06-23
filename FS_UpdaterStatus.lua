@@ -9,7 +9,7 @@ end
 
 local DIRECTORY = {}
 
-local FS_UpdaterStatus = LibStub("AceAddon-3.0"):NewAddon("FS_UpdaterStatus", "AceComm-3.0", "AceSerializer-3.0", "AceConsole-3.0")
+local FS_UpdaterStatus = LibStub("AceAddon-3.0"):NewAddon("FS_UpdaterStatus", "AceComm-3.0", "AceSerializer-3.0", "AceConsole-3.0", "AceEvent-3.0")
 FSUP = FS_UpdaterStatus
 
 local AceConfig = LibStub("AceConfig-3.0")
