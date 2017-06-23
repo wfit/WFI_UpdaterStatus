@@ -260,7 +260,7 @@ do
 		for _, addon in ipairs(updates) do
 			add_text(" -  |cff64b4ff" .. addon, GameFontHighlightLarge)
 		end
-		add_text("\nPlease run FS-Updater and then reload you interface.\n")
+		add_text("\nPlease run FS-Updater and then reload your interface.\n")
 		add_buttons({
 			{ "Reload", function()
 				ReloadUI()
