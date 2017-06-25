@@ -121,6 +121,7 @@ function FS_UpdaterStatus:OnEnable()
 	self:RebuildGUI()
     self:BroadcastRevisions()
 	self:RegisterEvent("GROUP_ROSTER_UPDATE")
+	self:RegisterEvent("ENCOUNTER_END")
 end
 
 function FS_UpdaterStatus:OnSlash()
@@ -174,8 +175,8 @@ do
 	                end
 	                list[Ambiguate(sender, "short")] = rev
 		            if type(FS_UPDATER_ADDONS[addon]) == "number" and type(rev) == "number" then
-			            if FS_UPDATER_ADDONS[addon] < rev and not warned[addon] then
-				            warned[addon] = true
+			            if FS_UPDATER_ADDONS[addon] < rev and (not warned[addon] or warned[addon] < rev) then
+				            warned[addon] = rev
 				            doWarn = true
 				            updates[#updates + 1] = addon
 			            end
@@ -189,6 +190,12 @@ do
 	            self:RebuildGUI()
 	        end
 	    end
+	end
+
+	function FS_UpdaterStatus:ENCOUNTER_END()
+		if #updates > 0 then
+			self:Open(updates)
+		end
 	end
 end
 
