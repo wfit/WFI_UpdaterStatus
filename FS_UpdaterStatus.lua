@@ -2,9 +2,11 @@
 local FS_UPDATER_ADDONS = FS_UPDATER_ADDONS
 if not FS_UPDATER_ADDONS then return end
 
-for addon, rev in pairs(FS_UPDATER_ADDONS) do
-    local ts = GetAddOnMetadata(addon, "X-FSPKG-Timestamp")
-	FS_UPDATER_ADDONS[addon] = ts and tonumber(ts) or rev:sub(1, 10)
+for i = 1, GetNumAddOns() do
+	local name = GetAddOnInfo(i)
+	if GetAddOnMetadata(name, "X-FS-Addon") and not FS_UPDATER_ADDONS[name] then
+		FS_UPDATER_ADDONS[name] = "#Unmanaged"
+	end
 end
 
 local DIRECTORY = {}
@@ -19,6 +21,15 @@ local AceGUI = LibStub("AceGUI-3.0")
 
 local Outer = { type = "group", childGroups = "tree", args = {} }
 local GUI = Outer.args
+
+local GroupUnits = {
+	"party1", "party2", "party3", "party4", "party5",
+	"raid1", "raid2", "raid3", "raid4", "raid5", "raid6", "raid7", "raid8", "raid9",
+	"raid10", "raid11", "raid12", "raid13", "raid14", "raid15", "raid16", "raid17", "raid18", "raid19",
+	"raid20", "raid21", "raid22", "raid23", "raid24", "raid25", "raid26", "raid27", "raid28", "raid29",
+	"raid30", "raid31", "raid32", "raid33", "raid34", "raid35", "raid36", "raid37", "raid38", "raid39",
+	"raid40",
+}
 
 local function colorize(rev)
 	a, b, c = rev:sub(1, 2), rev:sub(3, 4), rev:sub(5, 6)
@@ -38,8 +49,17 @@ function FS_UpdaterStatus:RebuildGUI()
             args = {}
         }
 
+        for _, unit in ipairs(GroupUnits) do
+	       if UnitExists(unit) then
+		       local user = Ambiguate(UnitName(unit), "short")
+		       if not DIRECTORY[name][user] then
+			       DIRECTORY[name][user] = "#NotInstalled"
+		       end
+	       end
+        end
+
         local max = 0
-	    for user, rev in pairs(DIRECTORY[name]) do
+	    for _, rev in pairs(DIRECTORY[name]) do
 		    if type(rev) == "number" and rev > max then
 			    max = rev
 		    end
@@ -49,12 +69,16 @@ function FS_UpdaterStatus:RebuildGUI()
 	        local label
 	        if type(rev) == "number" then
 		        label = "|cff" .. ((rev == max) and "abd473" or "ff7f00") .. rev
+	        elseif rev:sub(1, 1) == "#" then
+		        local state = rev:sub(2)
+	            local color = (state == "Unmanaged") and "abd473" or "ff7f00"
+		        label = "|cff" .. color .. state
 	        else
 		        label = "|cff" .. colorize(rev) .. rev:sub(1, 10)
 	        end
             addon.args[user] = {
                 type = "description",
-                name = Ambiguate(user, "short") .. "  -  " .. label,
+                name = user .. "  -  " .. label,
                 width = "normal"
             }
         end
@@ -75,11 +99,26 @@ end
 function FS_UpdaterStatus:OnInitialize()
     self:RegisterComm("FSUPS")
     self:RegisterChatCommand("fsu", "OnSlash")
-    self:RebuildGUI()
     AceConfig:RegisterOptionsTable("FS_UpdaterStatus", Outer)
 end
 
 function FS_UpdaterStatus:OnEnable()
+	for addon, rev in pairs(FS_UPDATER_ADDONS) do
+		local name, _, _, _, reason = GetAddOnInfo(addon)
+		if not name then
+			FS_UPDATER_ADDONS[addon] = "#NotFound"
+		elseif reason then
+			FS_UPDATER_ADDONS[addon] = "#" .. reason
+		elseif GetAddOnEnableState(UnitName("player"), addon) == 0 then
+			FS_UPDATER_ADDONS[addon] = "#Disabled"
+		elseif not IsAddOnLoaded(addon) and not IsAddOnLoadOnDemand(addon) then
+			FS_UPDATER_ADDONS[addon] = "#NotLoaded"
+		else
+			local ts = GetAddOnMetadata(addon, "X-FSPKG-Timestamp")
+			FS_UPDATER_ADDONS[addon] = ts and tonumber(ts) or rev:sub(1, 10)
+		end
+	end
+	self:RebuildGUI()
     self:BroadcastRevisions()
 	self:RegisterEvent("GROUP_ROSTER_UPDATE")
 end
@@ -133,7 +172,7 @@ do
 	                    list = {}
 	                    DIRECTORY[addon] = list
 	                end
-	                list[sender] = rev
+	                list[Ambiguate(sender, "short")] = rev
 		            if type(FS_UPDATER_ADDONS[addon]) == "number" and type(rev) == "number" then
 			            if FS_UPDATER_ADDONS[addon] < rev and not warned[addon] then
 				            warned[addon] = true
