@@ -244,6 +244,7 @@ do
 	end
 
 	function FS_UpdaterStatus:Open(updates)
+		do return end
 		if not window then
 			window = AceGUI:Create("Window")
 			window:SetStatusTable(status)
