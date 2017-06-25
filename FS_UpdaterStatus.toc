@@ -2,6 +2,7 @@
 ## Title: |cff64b4ffFrom Scratch|r Updater Status
 ## Notes: In-game Addons status data
 ## OptionalDeps: LibStub, Ace3, FS_Core
+## X-FS-Addon: 1
 
 #@no-lib-strip@
 libs\Ace3\LibStub\LibStub.lua
