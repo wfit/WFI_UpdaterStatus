@@ -61,7 +61,7 @@ function FS_UpdaterStatus:RebuildGUI()
 			local label
 			if type(rev) == "table" then
 				label = "|cff" .. ((rev.ts == max) and "abd473" or "ff7f00") .. rev.date
-			elseif rev:sub(1, 1) == "#" then
+			elseif type(rev) == "string" and rev:sub(1, 1) == "#" then
 				local state = rev:sub(2)
 				local color = (state == "Unmanaged") and "abd473" or "c41f3b"
 				label = "|cff" .. color .. state
