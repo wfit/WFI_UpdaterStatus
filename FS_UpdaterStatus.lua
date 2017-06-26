@@ -31,14 +31,6 @@ local GroupUnits = {
 	"raid40",
 }
 
-local function colorize(rev)
-	a, b, c = rev:sub(1, 2), rev:sub(3, 4), rev:sub(5, 6)
-	a, b, c = tonumber(a, 16), tonumber(b, 16), tonumber(c, 16)
-	local offset = math.max(0, 128 - (a + b + c) / 3)
-	a, b, c = math.min(a + offset, 255), math.min(b + offset, 255), math.min(c + offset, 255)
-	return ("%02x%02x%02x"):format(a, b, c)
-end
-
 function FS_UpdaterStatus:RebuildGUI()
     wipe(GUI)
 
@@ -60,21 +52,21 @@ function FS_UpdaterStatus:RebuildGUI()
 
         local max = 0
 	    for _, rev in pairs(DIRECTORY[name]) do
-		    if type(rev) == "number" and rev > max then
-			    max = rev
+		    if type(rev) == "table" and rev.ts > max then
+			    max = rev.ts
 		    end
 	    end
 
         for user, rev in pairs(DIRECTORY[name]) do
 	        local label
-	        if type(rev) == "number" then
-		        label = "|cff" .. ((rev == max) and "abd473" or "ff7f00") .. rev
+	        if type(rev) == "table" then
+		        label = "|cff" .. ((rev.ts == max) and "abd473" or "ff7f00") .. rev.date
 	        elseif rev:sub(1, 1) == "#" then
 		        local state = rev:sub(2)
-	            local color = (state == "Unmanaged") and "abd473" or "ff7f00"
+	            local color = (state == "Unmanaged") and "abd473" or "c41f3b"
 		        label = "|cff" .. color .. state
 	        else
-		        label = "|cff" .. colorize(rev) .. rev:sub(1, 10)
+		        label = "|cffc41f3b" .. tostring(rev)
 	        end
             addon.args[user] = {
                 type = "description",
@@ -114,8 +106,8 @@ function FS_UpdaterStatus:OnEnable()
 		elseif not IsAddOnLoaded(addon) and not IsAddOnLoadOnDemand(addon) then
 			FS_UPDATER_ADDONS[addon] = "#NotLoaded"
 		else
-			local ts = GetAddOnMetadata(addon, "X-FSPKG-Timestamp")
-			FS_UPDATER_ADDONS[addon] = ts and tonumber(ts) or rev:sub(1, 10)
+			local manifest = GetAddOnMetadata(addon, "X-FSPKG-Manifest")
+			FS_UPDATER_ADDONS[addon] = manifest and _G[manifest] or rev:sub(1, 10)
 		end
 	end
 	self:RebuildGUI()
@@ -174,9 +166,9 @@ do
 	                    DIRECTORY[addon] = list
 	                end
 	                list[Ambiguate(sender, "short")] = rev
-		            if type(FS_UPDATER_ADDONS[addon]) == "number" and type(rev) == "number" then
-			            if FS_UPDATER_ADDONS[addon] < rev and (not warned[addon] or warned[addon] < rev) then
-				            warned[addon] = rev
+		            if type(FS_UPDATER_ADDONS[addon]) == "table" and type(rev) == "table" then
+			            if FS_UPDATER_ADDONS[addon].ts < rev.ts and (not warned[addon] or warned[addon] < rev.ts) then
+				            warned[addon] = rev.ts
 				            doWarn = true
 				            updates[#updates + 1] = addon
 			            end
@@ -244,7 +236,6 @@ do
 	end
 
 	function FS_UpdaterStatus:Open(updates)
-		do return end
 		if not window then
 			window = AceGUI:Create("Window")
 			window:SetStatusTable(status)
