@@ -167,7 +167,7 @@ do
 					list[Ambiguate(sender, "short")] = rev
 					if type(FS_UPDATER_ADDONS[addon]) == "table" and type(rev) == "table" then
 						if FS_UPDATER_ADDONS[addon].ts < rev.ts and (not warned[addon] or warned[addon] < rev.ts) then
-							if not not warned[addon] then
+							if not warned[addon] then
 								updates[#updates + 1] = addon
 							end
 							warned[addon] = rev.ts
