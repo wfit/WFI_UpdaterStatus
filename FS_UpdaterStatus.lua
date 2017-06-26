@@ -113,7 +113,6 @@ function FS_UpdaterStatus:OnEnable()
 	self:RebuildGUI()
 	self:BroadcastRevisions()
 	self:RegisterEvent("GROUP_ROSTER_UPDATE")
-	self:RegisterEvent("ENCOUNTER_END")
 end
 
 function FS_UpdaterStatus:OnSlash()
@@ -183,12 +182,6 @@ do
 
 				self:RebuildGUI()
 			end
-		end
-	end
-
-	function FS_UpdaterStatus:ENCOUNTER_END()
-		if #updates > 0 then
-			self:Open(updates)
 		end
 	end
 end
