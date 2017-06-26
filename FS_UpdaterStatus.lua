@@ -32,66 +32,66 @@ local GroupUnits = {
 }
 
 function FS_UpdaterStatus:RebuildGUI()
-    wipe(GUI)
+	wipe(GUI)
 
-    for name in pairs(DIRECTORY) do
-        local addon = {
-            type = "group",
-            name = name,
-            args = {}
-        }
+	for name in pairs(DIRECTORY) do
+		local addon = {
+			type = "group",
+			name = name,
+			args = {}
+		}
 
-        for _, unit in ipairs(GroupUnits) do
-	       if UnitExists(unit) then
-		       local user = Ambiguate(UnitName(unit), "short")
-		       if not DIRECTORY[name][user] then
-			       DIRECTORY[name][user] = "#NotInstalled"
-		       end
-	       end
-        end
+		for _, unit in ipairs(GroupUnits) do
+			if UnitExists(unit) then
+				local user = Ambiguate(UnitName(unit), "short")
+				if not DIRECTORY[name][user] then
+					DIRECTORY[name][user] = "#NotInstalled"
+				end
+			end
+		end
 
-        local max = 0
-	    for _, rev in pairs(DIRECTORY[name]) do
-		    if type(rev) == "table" and rev.ts > max then
-			    max = rev.ts
-		    end
-	    end
+		local max = 0
+		for _, rev in pairs(DIRECTORY[name]) do
+			if type(rev) == "table" and rev.ts > max then
+				max = rev.ts
+			end
+		end
 
-        for user, rev in pairs(DIRECTORY[name]) do
-	        local label
-	        if type(rev) == "table" then
-		        label = "|cff" .. ((rev.ts == max) and "abd473" or "ff7f00") .. rev.date
-	        elseif rev:sub(1, 1) == "#" then
-		        local state = rev:sub(2)
-	            local color = (state == "Unmanaged") and "abd473" or "c41f3b"
-		        label = "|cff" .. color .. state
-	        else
-		        label = "|cffc41f3b" .. tostring(rev)
-	        end
-            addon.args[user] = {
-                type = "description",
-                name = user .. "  -  " .. label,
-                width = "normal"
-            }
-        end
+		for user, rev in pairs(DIRECTORY[name]) do
+			local label
+			if type(rev) == "table" then
+				label = "|cff" .. ((rev.ts == max) and "abd473" or "ff7f00") .. rev.date
+			elseif rev:sub(1, 1) == "#" then
+				local state = rev:sub(2)
+				local color = (state == "Unmanaged") and "abd473" or "c41f3b"
+				label = "|cff" .. color .. state
+			else
+				label = "|cffc41f3b" .. tostring(rev)
+			end
+			addon.args[user] = {
+				type = "description",
+				name = user .. "  -  " .. label,
+				width = "normal"
+			}
+		end
 
-        GUI[name] = addon
-    end
+		GUI[name] = addon
+	end
 
-    AceConfigRegistry:NotifyChange("FS_UpdaterStatus")
+	AceConfigRegistry:NotifyChange("FS_UpdaterStatus")
 end
 
 function FS_UpdaterStatus:Request()
-    wipe(DIRECTORY)
-    if IsInRaid(LE_PARTY_CATEGORY_HOME) then
-        FS_UpdaterStatus:SendCommMessage("FSUPS", "$REQ", "RAID")
-    end
+	wipe(DIRECTORY)
+	if IsInRaid(LE_PARTY_CATEGORY_HOME) then
+		FS_UpdaterStatus:SendCommMessage("FSUPS", "$REQ", "RAID")
+	end
 end
 
 function FS_UpdaterStatus:OnInitialize()
-    self:RegisterComm("FSUPS")
-    self:RegisterChatCommand("fsu", "OnSlash")
-    AceConfig:RegisterOptionsTable("FS_UpdaterStatus", Outer)
+	self:RegisterComm("FSUPS")
+	self:RegisterChatCommand("fsu", "OnSlash")
+	AceConfig:RegisterOptionsTable("FS_UpdaterStatus", Outer)
 end
 
 function FS_UpdaterStatus:OnEnable()
@@ -111,27 +111,27 @@ function FS_UpdaterStatus:OnEnable()
 		end
 	end
 	self:RebuildGUI()
-    self:BroadcastRevisions()
+	self:BroadcastRevisions()
 	self:RegisterEvent("GROUP_ROSTER_UPDATE")
 	self:RegisterEvent("ENCOUNTER_END")
 end
 
 function FS_UpdaterStatus:OnSlash()
-    self:Request()
-    AceConfigDialog:Open("FS_UpdaterStatus")
+	self:Request()
+	AceConfigDialog:Open("FS_UpdaterStatus")
 end
 
 do
-    local delay
-    function FS_UpdaterStatus:BroadcastRevisions()
-        if delay then delay:Cancel() end
-        delay = C_Timer.NewTimer(5, function()
-            if IsInRaid(LE_PARTY_CATEGORY_HOME) then
-                local serialized = self:Serialize(FS_UPDATER_ADDONS)
-                self:SendCommMessage("FSUPS", serialized, "RAID")
-            end
-        end)
-    end
+	local delay
+	function FS_UpdaterStatus:BroadcastRevisions()
+		if delay then delay:Cancel() end
+		delay = C_Timer.NewTimer(5, function()
+			if IsInRaid(LE_PARTY_CATEGORY_HOME) then
+				local serialized = self:Serialize(FS_UPDATER_ADDONS)
+				self:SendCommMessage("FSUPS", serialized, "RAID")
+			end
+		end)
+	end
 end
 
 do
@@ -151,37 +151,39 @@ do
 	local warned = {}
 
 	function FS_UpdaterStatus:OnCommReceived(prefix, text, _, sender)
-	    if prefix == "FSUPS" then
-	        if text == "$REQ" then
-	            self:BroadcastRevisions()
-	        else
-	            local res, addons = self:Deserialize(text)
-	            if not res then return end
-	            local doWarn = false
+		if prefix == "FSUPS" then
+			if text == "$REQ" then
+				self:BroadcastRevisions()
+			else
+				local res, addons = self:Deserialize(text)
+				if not res then return end
+				local doWarn = false
 
-	            for addon, rev in pairs(addons) do
-	                local list = DIRECTORY[addon]
-	                if not list then
-	                    list = {}
-	                    DIRECTORY[addon] = list
-	                end
-	                list[Ambiguate(sender, "short")] = rev
-		            if type(FS_UPDATER_ADDONS[addon]) == "table" and type(rev) == "table" then
-			            if FS_UPDATER_ADDONS[addon].ts < rev.ts and (not warned[addon] or warned[addon] < rev.ts) then
-				            warned[addon] = rev.ts
-				            doWarn = true
-				            updates[#updates + 1] = addon
-			            end
-		            end
-	            end
+				for addon, rev in pairs(addons) do
+					local list = DIRECTORY[addon]
+					if not list then
+						list = {}
+						DIRECTORY[addon] = list
+					end
+					list[Ambiguate(sender, "short")] = rev
+					if type(FS_UPDATER_ADDONS[addon]) == "table" and type(rev) == "table" then
+						if FS_UPDATER_ADDONS[addon].ts < rev.ts and (not warned[addon] or warned[addon] < rev.ts) then
+							if not not warned[addon] then
+								updates[#updates + 1] = addon
+							end
+							warned[addon] = rev.ts
+							doWarn = true
+						end
+					end
+				end
 
-	            if doWarn then
-		            self:Open(updates)
-	            end
+				if doWarn then
+					self:Open(updates)
+				end
 
-	            self:RebuildGUI()
-	        end
-	    end
+				self:RebuildGUI()
+			end
+		end
 	end
 
 	function FS_UpdaterStatus:ENCOUNTER_END()
@@ -300,9 +302,7 @@ do
 		end
 		add_text("\nPlease run FS-Updater and then reload your interface.\n")
 		add_buttons({
-			{ "Reload", function()
-				ReloadUI()
-			end }
+			{ "Reload", function() ReloadUI() end }
 		})
 
 		self:Layout()
