@@ -113,6 +113,8 @@ function FS_UpdaterStatus:OnEnable()
 	self:RebuildGUI()
 	self:BroadcastRevisions()
 	self:RegisterEvent("GROUP_ROSTER_UPDATE")
+	self:RegisterEvent("ENCOUNTER_START")
+	self:RegisterEvent("ENCOUNTER_END")
 end
 
 function FS_UpdaterStatus:OnSlash()
@@ -146,6 +148,9 @@ do
 end
 
 do
+	local encounterInProgress = false
+	local deferred = false
+
 	local updates = {}
 	local warned = {}
 
@@ -177,11 +182,27 @@ do
 				end
 
 				if doWarn then
-					self:Open(updates)
+					if encounterInProgress then
+						deferred = true
+					else
+						self:Open(updates)
+					end
 				end
 
 				self:RebuildGUI()
 			end
+		end
+	end
+
+	function FS_UpdaterStatus:ENCOUNTER_START()
+		encounterInProgress = true
+	end
+
+	function FS_UpdaterStatus:ENCOUNTER_END()
+		encounterInProgress = false
+		if deferred then
+			self:Open(updates)
+			deferred = false
 		end
 	end
 end
