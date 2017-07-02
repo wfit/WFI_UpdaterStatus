@@ -97,7 +97,7 @@ end
 function FS_UpdaterStatus:OnEnable()
 	for addon, rev in pairs(FS_UPDATER_ADDONS) do
 		local name, _, _, _, reason = GetAddOnInfo(addon)
-		if not name then
+		if not name or (reason and reason == "MISSING") then
 			FS_UPDATER_ADDONS[addon] = "#NotFound"
 		elseif reason then
 			FS_UPDATER_ADDONS[addon] = "#" .. reason
