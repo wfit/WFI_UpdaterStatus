@@ -311,7 +311,7 @@ do
 		add_text("Updates available for some of your addons:", GameFontHighlightLarge)
 		add_text(" ")
 		for _, addon in ipairs(updates) do
-			add_text(" -  |cff64b4ff" .. addon, GameFontHighlightLarge)
+			add_text(" -  |cffe6494a" .. addon, GameFontHighlightLarge)
 		end
 		add_text("\nPlease run WFI-Updater and then reload your interface.\n")
 		add_buttons({
