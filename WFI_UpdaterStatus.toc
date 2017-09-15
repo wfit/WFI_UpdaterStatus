@@ -1,0 +1,7 @@
+## Interface: 70300
+## Title: |cffe6494aWFI|r Updater Status
+## Notes: In-game Addons status data
+## Dependencies: WFI_Core
+## X-WFI-Addon: 1
+
+WFI_UpdaterStatus.lua

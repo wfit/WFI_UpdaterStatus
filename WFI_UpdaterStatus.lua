@@ -1,18 +1,17 @@
--- Abort if addons list is not available
-local FS_UPDATER_ADDONS = FS_UPDATER_ADDONS
-if not FS_UPDATER_ADDONS then return end
-
+local WFI_UPDATER_ADDONS = {}
 for i = 1, GetNumAddOns() do
 	local name = GetAddOnInfo(i)
-	if GetAddOnMetadata(name, "X-FS-Addon") and not FS_UPDATER_ADDONS[name] then
-		FS_UPDATER_ADDONS[name] = "#Unmanaged"
+	if GetAddOnMetadata(name, "X-PKG-Manifest") then
+		WFI_UPDATER_ADDONS[name] = "#Managed"
+	elseif GetAddOnMetadata(name, "X-WFI-Addon") then
+		WFI_UPDATER_ADDONS[name] = "#Unmanaged"
 	end
 end
 
 local DIRECTORY = {}
 
-local FS_UpdaterStatus = LibStub("AceAddon-3.0"):NewAddon("FS_UpdaterStatus", "AceComm-3.0", "AceSerializer-3.0", "AceConsole-3.0", "AceEvent-3.0")
-FSUP = FS_UpdaterStatus
+local WFI_UpdaterStatus = LibStub("AceAddon-3.0"):NewAddon("WFI_UpdaterStatus", "AceComm-3.0", "AceSerializer-3.0", "AceConsole-3.0", "AceEvent-3.0")
+WFIUP = WFI_UpdaterStatus
 
 local AceConfig = LibStub("AceConfig-3.0")
 local AceConfigDialog = LibStub("AceConfigDialog-3.0")
@@ -31,7 +30,7 @@ local GroupUnits = {
 	"raid40",
 }
 
-function FS_UpdaterStatus:RebuildGUI()
+function WFI_UpdaterStatus:RebuildGUI()
 	wipe(GUI)
 
 	for name in pairs(DIRECTORY) do
@@ -78,36 +77,36 @@ function FS_UpdaterStatus:RebuildGUI()
 		GUI[name] = addon
 	end
 
-	AceConfigRegistry:NotifyChange("FS_UpdaterStatus")
+	AceConfigRegistry:NotifyChange("WFI_UpdaterStatus")
 end
 
-function FS_UpdaterStatus:Request()
+function WFI_UpdaterStatus:Request()
 	wipe(DIRECTORY)
 	if IsInRaid(LE_PARTY_CATEGORY_HOME) then
-		FS_UpdaterStatus:SendCommMessage("FSUPS", "$REQ", "RAID")
+		WFI_UpdaterStatus:SendCommMessage("WFIUPS", "$REQ", "RAID")
 	end
 end
 
-function FS_UpdaterStatus:OnInitialize()
-	self:RegisterComm("FSUPS")
+function WFI_UpdaterStatus:OnInitialize()
+	self:RegisterComm("WFIUPS")
 	self:RegisterChatCommand("fsu", "OnSlash")
-	AceConfig:RegisterOptionsTable("FS_UpdaterStatus", Outer)
+	AceConfig:RegisterOptionsTable("WFI_UpdaterStatus", Outer)
 end
 
-function FS_UpdaterStatus:OnEnable()
-	for addon, rev in pairs(FS_UPDATER_ADDONS) do
+function WFI_UpdaterStatus:OnEnable()
+	for addon, rev in pairs(WFI_UPDATER_ADDONS) do
 		local name, _, _, _, reason = GetAddOnInfo(addon)
 		if not name or (reason and reason == "MISSING") then
-			FS_UPDATER_ADDONS[addon] = "#NotFound"
+			WFI_UPDATER_ADDONS[addon] = "#NotFound"
 		elseif reason then
-			FS_UPDATER_ADDONS[addon] = "#" .. reason
+			WFI_UPDATER_ADDONS[addon] = "#" .. reason
 		elseif GetAddOnEnableState(UnitName("player"), addon) == 0 then
-			FS_UPDATER_ADDONS[addon] = "#Disabled"
+			WFI_UPDATER_ADDONS[addon] = "#Disabled"
 		elseif not IsAddOnLoaded(addon) and not IsAddOnLoadOnDemand(addon) then
-			FS_UPDATER_ADDONS[addon] = "#NotLoaded"
+			WFI_UPDATER_ADDONS[addon] = "#NotLoaded"
 		else
-			local manifest = GetAddOnMetadata(addon, "X-FSPKG-Manifest")
-			FS_UPDATER_ADDONS[addon] = manifest and _G[manifest] or rev:sub(1, 10)
+			local manifest = GetAddOnMetadata(addon, "X-PKG-Manifest")
+			WFI_UPDATER_ADDONS[addon] = manifest and _G[manifest] or rev:sub(1, 10)
 		end
 	end
 	self:RebuildGUI()
@@ -117,19 +116,19 @@ function FS_UpdaterStatus:OnEnable()
 	self:RegisterEvent("ENCOUNTER_END")
 end
 
-function FS_UpdaterStatus:OnSlash()
+function WFI_UpdaterStatus:OnSlash()
 	self:Request()
-	AceConfigDialog:Open("FS_UpdaterStatus")
+	AceConfigDialog:Open("WFI_UpdaterStatus")
 end
 
 do
 	local delay
-	function FS_UpdaterStatus:BroadcastRevisions()
+	function WFI_UpdaterStatus:BroadcastRevisions()
 		if delay then delay:Cancel() end
 		delay = C_Timer.NewTimer(5, function()
 			if IsInRaid(LE_PARTY_CATEGORY_HOME) then
-				local serialized = self:Serialize(FS_UPDATER_ADDONS)
-				self:SendCommMessage("FSUPS", serialized, "RAID")
+				local serialized = self:Serialize(WFI_UPDATER_ADDONS)
+				self:SendCommMessage("WFIUPS", serialized, "RAID")
 			end
 		end)
 	end
@@ -137,7 +136,7 @@ end
 
 do
 	local inRaid = false
-	function FS_UpdaterStatus:GROUP_ROSTER_UPDATE()
+	function WFI_UpdaterStatus:GROUP_ROSTER_UPDATE()
 		local now = IsInRaid(LE_PARTY_CATEGORY_HOME)
 		if now and not inRaid then
 			self:Request()
@@ -154,8 +153,8 @@ do
 	local updates = {}
 	local warned = {}
 
-	function FS_UpdaterStatus:OnCommReceived(prefix, text, _, sender)
-		if prefix == "FSUPS" then
+	function WFI_UpdaterStatus:OnCommReceived(prefix, text, _, sender)
+		if prefix == "WFIUPS" then
 			if text == "$REQ" then
 				self:BroadcastRevisions()
 			else
@@ -170,8 +169,8 @@ do
 						DIRECTORY[addon] = list
 					end
 					list[Ambiguate(sender, "short")] = rev
-					if type(FS_UPDATER_ADDONS[addon]) == "table" and type(rev) == "table" then
-						if FS_UPDATER_ADDONS[addon].ts < rev.ts and (not warned[addon] or warned[addon] < rev.ts) then
+					if type(WFI_UPDATER_ADDONS[addon]) == "table" and type(rev) == "table" then
+						if WFI_UPDATER_ADDONS[addon].ts < rev.ts and (not warned[addon] or warned[addon] < rev.ts) then
 							if not warned[addon] then
 								updates[#updates + 1] = addon
 							end
@@ -194,11 +193,11 @@ do
 		end
 	end
 
-	function FS_UpdaterStatus:ENCOUNTER_START()
+	function WFI_UpdaterStatus:ENCOUNTER_START()
 		encounterInProgress = true
 	end
 
-	function FS_UpdaterStatus:ENCOUNTER_END()
+	function WFI_UpdaterStatus:ENCOUNTER_END()
 		encounterInProgress = false
 		if deferred then
 			self:Open(updates)
@@ -245,13 +244,13 @@ do
 	end
 
 	-- Resize the dialog window
-	function FS_UpdaterStatus:Layout()
+	function WFI_UpdaterStatus:Layout()
 		container:DoLayout()
 		local height = ContainerHeight(container.frame)
 		window:SetHeight(height + 57 - 10)
 	end
 
-	function FS_UpdaterStatus:Open(updates)
+	function WFI_UpdaterStatus:Open(updates)
 		if not window then
 			window = AceGUI:Create("Window")
 			window:SetStatusTable(status)
@@ -314,7 +313,7 @@ do
 		for _, addon in ipairs(updates) do
 			add_text(" -  |cff64b4ff" .. addon, GameFontHighlightLarge)
 		end
-		add_text("\nPlease run FS-Updater and then reload your interface.\n")
+		add_text("\nPlease run WFI-Updater and then reload your interface.\n")
 		add_buttons({
 			{ "Reload", function() ReloadUI() end }
 		})
