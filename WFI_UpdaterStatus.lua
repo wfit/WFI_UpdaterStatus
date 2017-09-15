@@ -319,6 +319,5 @@ do
 		})
 
 		self:Layout()
-		PlaySound("DwarfExploration", "master")
 	end
 end
